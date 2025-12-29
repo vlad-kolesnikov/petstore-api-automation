@@ -17,6 +17,7 @@ htmlcov/
 .tox/
 testsprite_tests/
 test_report.json
+test_report.html
 test_results/
 
 # IDE

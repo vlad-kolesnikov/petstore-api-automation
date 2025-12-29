@@ -10,6 +10,7 @@ import requests
 from typing import Dict, List, Any
 from datetime import datetime
 from pathlib import Path
+from jinja2 import Template
 
 
 class Colors:
@@ -374,6 +375,39 @@ class TestRunner:
 
         print(f"{Colors.GREEN}Report saved to: {output_path}{Colors.RESET}\n")
 
+    def save_html_report(self, output_path: str = 'test_report.html'):
+        """Generate beautiful HTML report"""
+        template_path = Path(__file__).parent / 'templates' / 'report.html'
+
+        if not template_path.exists():
+            print(f"{Colors.YELLOW}Warning: HTML template not found at {template_path}{Colors.RESET}")
+            return
+
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template = Template(f.read())
+
+        report_data = {
+            'project_name': self.test_plan.get('project_name', 'Unknown Project'),
+            'test_type': self.test_plan.get('test_type', 'backend'),
+            'base_url': self.base_url,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'summary': {
+                'total': self.results['total'],
+                'passed': self.results['passed'],
+                'failed': self.results['failed'],
+                'pass_rate': (self.results['passed'] / self.results['total'] * 100) if self.results['total'] > 0 else 0
+            },
+            'results': self.results['details']
+        }
+
+        html_content = template.render(**report_data)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+
+        print(f"{Colors.GREEN}HTML report saved to: {output_path}{Colors.RESET}")
+        print(f"{Colors.CYAN}Open in browser: file://{Path(output_path).absolute()}{Colors.RESET}\n")
+
 
 def main():
     """Main entry point"""
@@ -387,6 +421,7 @@ def main():
     runner = TestRunner(test_plan_path)
     exit_code = runner.run_all_tests()
     runner.save_report('test_report.json')
+    runner.save_html_report('test_report.html')
 
     # Exit with appropriate code
     sys.exit(exit_code)
