@@ -1,0 +1,278 @@
+{
+  "project_name": "Petstore API - Store Operations",
+  "test_type": "backend",
+  "base_url": "http://localhost:3000",
+  "authentication": {
+    "api_key": {
+      "header": "api_key",
+      "value": "special-key"
+    }
+  },
+  "fixtures": {
+    "test_pet_for_order": {
+      "method": "POST",
+      "path": "/pet",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Pet for Order Test",
+        "photoUrls": ["https://example.com/order-pet.jpg"],
+        "status": "available"
+      }
+    },
+    "cleanup": [
+      {
+        "method": "DELETE",
+        "path": "/pet/{test_pet_for_order.id}"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-STORE-001",
+      "name": "Store Inventory",
+      "description": "Test retrieving store inventory by status",
+      "endpoint": "GET /store/inventory",
+      "test_cases": [
+        {
+          "id": "TC-STORE-001",
+          "name": "Get store inventory",
+          "description": "Should return inventory counts grouped by pet status",
+          "method": "GET",
+          "path": "/store/inventory",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "object"
+          }
+        }
+      ]
+    },
+    {
+      "id": "REQ-STORE-002",
+      "name": "Place Order",
+      "description": "Test creating new orders for pets",
+      "endpoint": "POST /store/order",
+      "test_cases": [
+        {
+          "id": "TC-STORE-002",
+          "name": "Place order with valid data",
+          "description": "Should successfully create an order with all required fields",
+          "method": "POST",
+          "path": "/store/order",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "petId": "{test_pet_for_order.id}",
+            "quantity": 1,
+            "shipDate": "2025-12-31T10:00:00.000Z",
+            "status": "placed",
+            "complete": false
+          },
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "petId", "status"]
+          }
+        },
+        {
+          "id": "TC-STORE-003",
+          "name": "Place order with status approved",
+          "description": "Should successfully create order with approved status",
+          "method": "POST",
+          "path": "/store/order",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "petId": "{test_pet_for_order.id}",
+            "quantity": 2,
+            "shipDate": "2025-12-31T10:00:00.000Z",
+            "status": "approved",
+            "complete": false
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-STORE-004",
+          "name": "Place order with status delivered",
+          "description": "Should successfully create order with delivered status",
+          "method": "POST",
+          "path": "/store/order",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "petId": "{test_pet_for_order.id}",
+            "quantity": 1,
+            "shipDate": "2025-12-31T10:00:00.000Z",
+            "status": "delivered",
+            "complete": true
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-STORE-005",
+          "name": "Place order with invalid petId",
+          "description": "Should return 400 for negative pet ID",
+          "method": "POST",
+          "path": "/store/order",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "petId": -1,
+            "quantity": 1,
+            "shipDate": "2025-12-31T10:00:00.000Z",
+            "status": "placed",
+            "complete": false
+          },
+          "expected_status": 400
+        },
+        {
+          "id": "TC-STORE-006",
+          "name": "Place order with invalid quantity",
+          "description": "Should return 400 for negative quantity",
+          "method": "POST",
+          "path": "/store/order",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "petId": 1,
+            "quantity": -5,
+            "shipDate": "2025-12-31T10:00:00.000Z",
+            "status": "placed",
+            "complete": false
+          },
+          "expected_status": 400
+        },
+        {
+          "id": "TC-STORE-007",
+          "name": "Place order with invalid status",
+          "description": "Should return 400 for invalid order status",
+          "method": "POST",
+          "path": "/store/order",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "petId": 1,
+            "quantity": 1,
+            "shipDate": "2025-12-31T10:00:00.000Z",
+            "status": "invalid_status",
+            "complete": false
+          },
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-STORE-003",
+      "name": "Get Order by ID",
+      "description": "Test retrieving orders by order ID",
+      "endpoint": "GET /store/order/{orderId}",
+      "test_cases": [
+        {
+          "id": "TC-STORE-008",
+          "name": "Get order with valid ID in range 1-10",
+          "description": "Should successfully retrieve order with ID between 1 and 10 (test range)",
+          "method": "GET",
+          "path": "/store/order/1",
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "petId", "status"]
+          }
+        },
+        {
+          "id": "TC-STORE-009",
+          "name": "Get order with ID 5",
+          "description": "Should successfully retrieve order in valid test range",
+          "method": "GET",
+          "path": "/store/order/5",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-STORE-010",
+          "name": "Get order with ID 10",
+          "description": "Should successfully retrieve order at upper boundary of test range",
+          "method": "GET",
+          "path": "/store/order/10",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-STORE-011",
+          "name": "Get order with ID outside valid range",
+          "description": "Should return 400 for order ID > 10 (outside test range)",
+          "method": "GET",
+          "path": "/store/order/11",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-STORE-012",
+          "name": "Get order with ID 0",
+          "description": "Should return 400 for order ID below minimum",
+          "method": "GET",
+          "path": "/store/order/0",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-STORE-013",
+          "name": "Get order with large non-existent ID",
+          "description": "Should return 404 for order that doesn't exist",
+          "method": "GET",
+          "path": "/store/order/999999",
+          "expected_status": 404
+        },
+        {
+          "id": "TC-STORE-014",
+          "name": "Get order with invalid ID format",
+          "description": "Should return 400 for non-numeric order ID",
+          "method": "GET",
+          "path": "/store/order/invalid",
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-STORE-004",
+      "name": "Delete Order",
+      "description": "Test deleting orders by order ID",
+      "endpoint": "DELETE /store/order/{orderId}",
+      "test_cases": [
+        {
+          "id": "TC-STORE-015",
+          "name": "Delete order with valid ID",
+          "description": "Should successfully delete an existing order",
+          "method": "DELETE",
+          "path": "/store/order/1",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-STORE-016",
+          "name": "Delete non-existent order",
+          "description": "Should return 404 when trying to delete order that doesn't exist",
+          "method": "DELETE",
+          "path": "/store/order/999999",
+          "expected_status": 404
+        },
+        {
+          "id": "TC-STORE-017",
+          "name": "Delete order with invalid ID",
+          "description": "Should return 400 for invalid order ID format",
+          "method": "DELETE",
+          "path": "/store/order/invalid_id",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-STORE-018",
+          "name": "Delete order with ID 0",
+          "description": "Should return 400 for order ID below minimum (must be >= 1)",
+          "method": "DELETE",
+          "path": "/store/order/0",
+          "expected_status": 400
+        }
+      ]
+    }
+  ]
+}

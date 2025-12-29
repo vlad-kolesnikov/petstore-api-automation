@@ -1,0 +1,123 @@
+{
+  "project_name": "Petstore API - Example with Fixtures",
+  "test_type": "backend",
+  "base_url": "http://localhost:3000",
+  "authentication": {
+    "api_key": {
+      "header": "api_key",
+      "value": "special-key"
+    }
+  },
+  "fixtures": {
+    "test_pet": {
+      "method": "POST",
+      "path": "/pet",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Fixture Pet",
+        "photoUrls": ["https://example.com/fixture-pet.jpg"],
+        "status": "available",
+        "tags": [{"name": "test-fixture"}]
+      }
+    },
+    "test_user": {
+      "method": "POST",
+      "path": "/user",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "username": "fixture_user",
+        "firstName": "Fixture",
+        "lastName": "User",
+        "email": "fixture@example.com",
+        "password": "password123",
+        "phone": "1234567890",
+        "userStatus": 1
+      }
+    },
+    "cleanup": [
+      {
+        "method": "DELETE",
+        "path": "/pet/{test_pet.id}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/user/fixture_user"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "name": "Pet Operations Using Fixtures",
+      "description": "Test pet operations using pre-created fixture data",
+      "test_cases": [
+        {
+          "id": "TC-001",
+          "name": "Get fixture pet by ID",
+          "description": "Retrieve the pet created in fixtures",
+          "method": "GET",
+          "path": "/pet/{test_pet.id}",
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "name", "status"]
+          }
+        },
+        {
+          "id": "TC-002",
+          "name": "Update fixture pet",
+          "description": "Update the pet created in fixtures",
+          "method": "PUT",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": "{test_pet.id}",
+            "name": "Updated Fixture Pet",
+            "photoUrls": ["https://example.com/updated-pet.jpg"],
+            "status": "sold"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-003",
+          "name": "Get fixture user",
+          "description": "Retrieve the user created in fixtures",
+          "method": "GET",
+          "path": "/user/fixture_user",
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["username", "email"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "name": "Create New Resources",
+      "description": "Test creating new resources independently",
+      "test_cases": [
+        {
+          "id": "TC-004",
+          "name": "Create new pet",
+          "description": "Create a completely new pet",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Brand New Pet",
+            "photoUrls": ["https://example.com/new-pet.jpg"],
+            "status": "available"
+          },
+          "expected_status": 200
+        }
+      ]
+    }
+  ]
+}

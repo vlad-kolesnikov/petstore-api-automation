@@ -1,0 +1,402 @@
+{
+  "project_name": "Petstore API - Pet CRUD Operations",
+  "test_type": "backend",
+  "base_url": "http://localhost:3000",
+  "authentication": {
+    "api_key": {
+      "header": "api_key",
+      "value": "special-key"
+    }
+  },
+  "fixtures": {
+    "test_pet_available": {
+      "method": "POST",
+      "path": "/pet",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Fixture Available Pet",
+        "photoUrls": ["https://example.com/fixture-available.jpg"],
+        "status": "available",
+        "category": {
+          "id": 1,
+          "name": "Dogs"
+        },
+        "tags": [
+          {
+            "id": 1,
+            "name": "test-fixture"
+          }
+        ]
+      }
+    },
+    "cleanup": [
+      {
+        "method": "DELETE",
+        "path": "/pet/{test_pet_available.id}"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-PET-001",
+      "name": "Pet Creation (POST /pet)",
+      "description": "Test creating new pets with various data combinations",
+      "endpoint": "POST /pet",
+      "test_cases": [
+        {
+          "id": "TC-PET-001",
+          "name": "Create pet with all required fields",
+          "description": "Should successfully create a pet with name and photoUrls (minimum required fields)",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Golden Retriever",
+            "photoUrls": ["https://example.com/golden-retriever.jpg"],
+            "status": "available"
+          },
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "name", "photoUrls"]
+          }
+        },
+        {
+          "id": "TC-PET-002",
+          "name": "Create pet with full details",
+          "description": "Should successfully create a pet with all optional fields populated",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Fluffy Cat",
+            "photoUrls": ["https://example.com/fluffy-cat.jpg", "https://example.com/fluffy-cat-2.jpg"],
+            "status": "available",
+            "category": {
+              "id": 2,
+              "name": "Cats"
+            },
+            "tags": [
+              {
+                "id": 10,
+                "name": "fluffy"
+              },
+              {
+                "id": 11,
+                "name": "friendly"
+              }
+            ]
+          },
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "name", "category", "tags", "status"]
+          }
+        },
+        {
+          "id": "TC-PET-003",
+          "name": "Create pet without required name field",
+          "description": "Should return 405 validation error when name field is missing",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "photoUrls": ["https://example.com/nameless.jpg"],
+            "status": "available"
+          },
+          "expected_status": 405
+        },
+        {
+          "id": "TC-PET-004",
+          "name": "Create pet without required photoUrls field",
+          "description": "Should return 405 validation error when photoUrls array is missing",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Pet Without Photos",
+            "status": "available"
+          },
+          "expected_status": 405
+        },
+        {
+          "id": "TC-PET-005",
+          "name": "Create pet with invalid status",
+          "description": "Should return 405 when status is not one of: available, pending, sold",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Invalid Status Pet",
+            "photoUrls": ["https://example.com/invalid.jpg"],
+            "status": "invalid_status"
+          },
+          "expected_status": 405
+        },
+        {
+          "id": "TC-PET-006",
+          "name": "Create pet with status pending",
+          "description": "Should successfully create pet with pending status",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Pending Pet",
+            "photoUrls": ["https://example.com/pending.jpg"],
+            "status": "pending"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-PET-007",
+          "name": "Create pet with status sold",
+          "description": "Should successfully create pet with sold status",
+          "method": "POST",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Sold Pet",
+            "photoUrls": ["https://example.com/sold.jpg"],
+            "status": "sold"
+          },
+          "expected_status": 200
+        }
+      ]
+    },
+    {
+      "id": "REQ-PET-002",
+      "name": "Pet Retrieval (GET /pet/{petId})",
+      "description": "Test retrieving pets by ID",
+      "endpoint": "GET /pet/{petId}",
+      "test_cases": [
+        {
+          "id": "TC-PET-008",
+          "name": "Get pet by valid ID using fixture",
+          "description": "Should successfully retrieve pet created in fixtures",
+          "method": "GET",
+          "path": "/pet/{test_pet_available.id}",
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "name", "photoUrls", "status"]
+          }
+        },
+        {
+          "id": "TC-PET-009",
+          "name": "Get non-existent pet",
+          "description": "Should return 404 when pet ID does not exist",
+          "method": "GET",
+          "path": "/pet/999999999",
+          "expected_status": 404
+        },
+        {
+          "id": "TC-PET-010",
+          "name": "Get pet with invalid ID format",
+          "description": "Should return 400 for non-numeric pet ID",
+          "method": "GET",
+          "path": "/pet/invalid_id",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-PET-011",
+          "name": "Get pet with negative ID",
+          "description": "Should return 404 for negative pet ID",
+          "method": "GET",
+          "path": "/pet/-1",
+          "expected_status": 404
+        }
+      ]
+    },
+    {
+      "id": "REQ-PET-003",
+      "name": "Pet Update (PUT /pet)",
+      "description": "Test updating existing pets",
+      "endpoint": "PUT /pet",
+      "test_cases": [
+        {
+          "id": "TC-PET-012",
+          "name": "Update existing pet with valid data",
+          "description": "Should successfully update all fields of an existing pet",
+          "method": "PUT",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": "{test_pet_available.id}",
+            "name": "Updated Fixture Pet",
+            "photoUrls": ["https://example.com/updated-fixture.jpg"],
+            "status": "sold",
+            "category": {
+              "id": 2,
+              "name": "Updated Category"
+            }
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-PET-013",
+          "name": "Update pet status from available to pending",
+          "description": "Should successfully change pet status",
+          "method": "PUT",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": "{test_pet_available.id}",
+            "name": "Status Change Pet",
+            "photoUrls": ["https://example.com/status-change.jpg"],
+            "status": "pending"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-PET-014",
+          "name": "Update non-existent pet",
+          "description": "Should return 404 when trying to update pet that doesn't exist",
+          "method": "PUT",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": 999999999,
+            "name": "Non-existent Pet",
+            "photoUrls": ["https://example.com/nonexistent.jpg"],
+            "status": "available"
+          },
+          "expected_status": 404
+        },
+        {
+          "id": "TC-PET-015",
+          "name": "Update pet without required name",
+          "description": "Should return 405 validation error when name is missing in update",
+          "method": "PUT",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": "{test_pet_available.id}",
+            "photoUrls": ["https://example.com/no-name.jpg"],
+            "status": "available"
+          },
+          "expected_status": 405
+        },
+        {
+          "id": "TC-PET-016",
+          "name": "Update pet without required photoUrls",
+          "description": "Should return 405 validation error when photoUrls is missing",
+          "method": "PUT",
+          "path": "/pet",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": "{test_pet_available.id}",
+            "name": "No Photos Pet",
+            "status": "available"
+          },
+          "expected_status": 405
+        }
+      ]
+    },
+    {
+      "id": "REQ-PET-004",
+      "name": "Pet Partial Update (POST /pet/{petId})",
+      "description": "Test updating pet with form data (partial update)",
+      "endpoint": "POST /pet/{petId}",
+      "test_cases": [
+        {
+          "id": "TC-PET-017",
+          "name": "Update pet name using form data",
+          "description": "Should successfully update only the name field using form data",
+          "method": "POST",
+          "path": "/pet/{test_pet_available.id}",
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": {
+            "name": "Form Updated Name"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-PET-018",
+          "name": "Update pet status using form data",
+          "description": "Should successfully update only the status field",
+          "method": "POST",
+          "path": "/pet/{test_pet_available.id}",
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": {
+            "status": "sold"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-PET-019",
+          "name": "Update both name and status using form data",
+          "description": "Should successfully update both name and status fields",
+          "method": "POST",
+          "path": "/pet/{test_pet_available.id}",
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": {
+            "name": "Fully Form Updated",
+            "status": "pending"
+          },
+          "expected_status": 200
+        }
+      ]
+    },
+    {
+      "id": "REQ-PET-005",
+      "name": "Pet Deletion (DELETE /pet/{petId})",
+      "description": "Test deleting pets by ID",
+      "endpoint": "DELETE /pet/{petId}",
+      "test_cases": [
+        {
+          "id": "TC-PET-020",
+          "name": "Delete existing pet",
+          "description": "Should successfully delete a pet that exists",
+          "method": "DELETE",
+          "path": "/pet/{test_pet_available.id}",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-PET-021",
+          "name": "Delete non-existent pet",
+          "description": "Should return 404 when trying to delete pet that doesn't exist",
+          "method": "DELETE",
+          "path": "/pet/999999999",
+          "expected_status": 404
+        },
+        {
+          "id": "TC-PET-022",
+          "name": "Delete pet with invalid ID",
+          "description": "Should return 400 for invalid pet ID format",
+          "method": "DELETE",
+          "path": "/pet/invalid_id",
+          "expected_status": 400
+        }
+      ]
+    }
+  ]
+}

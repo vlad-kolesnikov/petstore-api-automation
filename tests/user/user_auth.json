@@ -1,0 +1,197 @@
+{
+  "project_name": "Petstore API - User Authentication",
+  "test_type": "backend",
+  "base_url": "http://localhost:3000",
+  "authentication": {
+    "api_key": {
+      "header": "api_key",
+      "value": "special-key"
+    }
+  },
+  "fixtures": {
+    "auth_test_user": {
+      "method": "POST",
+      "path": "/user",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "username": "authuser",
+        "firstName": "Auth",
+        "lastName": "Test",
+        "email": "auth.test@example.com",
+        "password": "testPassword123",
+        "phone": "1234567890",
+        "userStatus": 1
+      }
+    },
+    "cleanup": [
+      {
+        "method": "DELETE",
+        "path": "/user/authuser"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-AUTH-001",
+      "name": "User Login (GET /user/login)",
+      "description": "Test user authentication and login functionality",
+      "endpoint": "GET /user/login",
+      "test_cases": [
+        {
+          "id": "TC-AUTH-001",
+          "name": "Login with valid credentials",
+          "description": "Should successfully login with correct username and password, return session token",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=testPassword123",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "string"
+          },
+          "expected_headers": {
+            "X-Expires-After": "date-time",
+            "X-Rate-Limit": "integer"
+          }
+        },
+        {
+          "id": "TC-AUTH-002",
+          "name": "Login with test user user1",
+          "description": "Should successfully login with default test user credentials",
+          "method": "GET",
+          "path": "/user/login?username=user1&password=password",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-AUTH-003",
+          "name": "Login with invalid password",
+          "description": "Should return 400 for incorrect password",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=wrongPassword",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-004",
+          "name": "Login with non-existent username",
+          "description": "Should return 400 for username that doesn't exist",
+          "method": "GET",
+          "path": "/user/login?username=nonexistentuser12345&password=anypassword",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-005",
+          "name": "Login without username parameter",
+          "description": "Should return 400 when username is missing",
+          "method": "GET",
+          "path": "/user/login?password=testPassword123",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-006",
+          "name": "Login without password parameter",
+          "description": "Should return 400 when password is missing",
+          "method": "GET",
+          "path": "/user/login?username=authuser",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-007",
+          "name": "Login with empty username",
+          "description": "Should return 400 for empty username",
+          "method": "GET",
+          "path": "/user/login?username=&password=testPassword123",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-008",
+          "name": "Login with empty password",
+          "description": "Should return 400 for empty password",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-009",
+          "name": "Login with SQL injection attempt in username",
+          "description": "Should safely handle SQL injection attempts",
+          "method": "GET",
+          "path": "/user/login?username=admin'--&password=anything",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-AUTH-010",
+          "name": "Login with special characters in password",
+          "description": "Should handle passwords with special characters",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=P@ss!w0rd#123",
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-AUTH-002",
+      "name": "User Logout (GET /user/logout)",
+      "description": "Test user logout and session termination",
+      "endpoint": "GET /user/logout",
+      "test_cases": [
+        {
+          "id": "TC-AUTH-011",
+          "name": "Logout current user session",
+          "description": "Should successfully logout and invalidate current session",
+          "method": "GET",
+          "path": "/user/logout",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-AUTH-012",
+          "name": "Logout when not logged in",
+          "description": "Should handle logout request when no active session exists",
+          "method": "GET",
+          "path": "/user/logout",
+          "expected_status": 200
+        }
+      ]
+    },
+    {
+      "id": "REQ-AUTH-003",
+      "name": "Session Management",
+      "description": "Test session token and rate limiting",
+      "endpoint": "GET /user/login",
+      "test_cases": [
+        {
+          "id": "TC-AUTH-013",
+          "name": "Verify session token is returned",
+          "description": "Login should return a session token string in response body",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=testPassword123",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "string"
+          }
+        },
+        {
+          "id": "TC-AUTH-014",
+          "name": "Verify X-Rate-Limit header is present",
+          "description": "Login response should include X-Rate-Limit header with integer value",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=testPassword123",
+          "expected_status": 200,
+          "expected_headers": {
+            "X-Rate-Limit": "integer"
+          }
+        },
+        {
+          "id": "TC-AUTH-015",
+          "name": "Verify X-Expires-After header is present",
+          "description": "Login response should include X-Expires-After header with expiration date",
+          "method": "GET",
+          "path": "/user/login?username=authuser&password=testPassword123",
+          "expected_status": 200,
+          "expected_headers": {
+            "X-Expires-After": "date-time"
+          }
+        }
+      ]
+    }
+  ]
+}

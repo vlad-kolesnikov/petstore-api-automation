@@ -1,0 +1,28 @@
+{
+  "apiName": "Petstore API",
+  "baseUrl": "https://petstore.swagger.io/v2",
+  "authentication": {
+    "type": "apiKey",
+    "headerName": "api_key",
+    "value": "special-key"
+  },
+  "endpoints": {
+    "pet": {
+      "base": "/pet",
+      "operations": ["GET", "POST", "PUT", "DELETE"]
+    },
+    "store": {
+      "base": "/store",
+      "operations": ["GET", "POST", "DELETE"]
+    },
+    "user": {
+      "base": "/user",
+      "operations": ["GET", "POST", "PUT", "DELETE"]
+    }
+  },
+  "testData": {
+    "testPetIds": [-1, -2, -3],
+    "testUsernames": ["testuser1", "testuser2"],
+    "testOrderIds": [1, 2, 3]
+  }
+}

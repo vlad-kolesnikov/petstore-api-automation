@@ -1,0 +1,143 @@
+{
+  "version": "1.0",
+  "updated": "2025-01-XX",
+  "defaultMode": "prompt",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Grep",
+      "Glob",
+      "Bash(pwd)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(pytest *)",
+      "Bash(ruff *)",
+      "Bash(mypy *)",
+      "Bash(pip install *)",
+      "Bash(pip list)",
+      "Bash(pip show *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git branch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(npm run test*)",
+      "Bash(npm run build)",
+      "Bash(python -m *)",
+      "Bash(curl *)",
+      "Bash(mkdir *)",
+      "Bash(node *)",
+      "Bash(npm *)"
+    ],
+    "deny": [
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout --*)",
+      "Bash(git push*)",
+      "Bash(git clean*)",
+      "Bash(wget *)",
+      "Bash(chmod *)",
+      "Bash(chown *)",
+      "Bash(sudo *)",
+      "Bash(su *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(format *)",
+      "Bash(mv /etc/*)",
+      "Bash(mv /usr/*)",
+      "Bash(mv /var/*)",
+      "Bash(cp -r ~ *)",
+      "Bash(rsync * --delete*)",
+      "Bash(npm install -g *)",
+      "Bash(pip install --break-system-packages *)",
+      "Bash(systemctl *)",
+      "Bash(service *)",
+      "Bash(shutdown *)",
+      "Bash(reboot *)",
+      "Bash(kill -9 *)",
+      "Bash(killall *)",
+      "Bash(pkill *)",
+      "Bash(> ~/.ssh/*)",
+      "Bash(> ~/.aws/*)",
+      "Bash(> ~/.config/*)",
+      "Bash(eval *)",
+      "Bash(exec *)",
+      "Bash(source ~/.bashrc)",
+      "Bash(source ~/.zshrc)",
+      "Bash(export *PASS*)",
+      "Bash(export *KEY*)",
+      "Bash(export *TOKEN*)",
+      "Bash(export *SECRET*)"
+    ]
+  },
+  "blocked_paths": [
+    "~/.ssh/",
+    "~/.aws/",
+    "~/.config/",
+    "~/.gnupg/",
+    "/etc/",
+    "/usr/",
+    "/var/",
+    "/sys/",
+    "/proc/",
+    "/boot/",
+    "*.key",
+    "*.pem",
+    "*.p12",
+    "*credentials*",
+    "*password*",
+    "*.env.production",
+    ".env.local"
+  ],
+  "mcp": {
+    "enableAllProjectMcpServers": true,
+    "enabledMcpjsonServers": [
+      "testsprite",
+      "context7",
+      "github"
+    ],
+    "disabledMcpjsonServers": [
+      "filesystem",
+      "postgres",
+      "supabase"
+    ],
+    "servers": {
+      "testsprite": {
+        "command": "npx",
+        "args": [
+          "@testsprite/testsprite-mcp@latest"
+        ],
+        "env": {
+          "TESTSPRITE_API_KEY": "sk-user-trbh0fhkeg-ErUKyd5NJ8VsfDTwI8MqHtmePea2k5PhLT1QKmes4xASaetDEEjlbXkW5hXeQQ7k7dR-asD4RQWlLpDiWH6szLdb2af-hIsddUCydJbCJxUmNtoBQP_UWdw8"
+        }
+      }
+    }
+  },
+  "transcript": {
+    "retentionDays": 14,
+    "includeSystemMessages": false
+  },
+  "limits": {
+    "maxFileSizeKB": 1024,
+    "maxFilesPerOperation": 50,
+    "maxLinesPerFile": 5000
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "tool": "Edit",
+        "pattern": "*.py",
+        "script": "ruff format $FILE && ruff check --fix $FILE"
+      }
+    ]
+  },
+  "logging": {
+    "level": "info",
+    "logDeniedCommands": true,
+    "logFilePath": ".claude/security.log"
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "project_name": "Petstore API - User CRUD Operations",
+  "test_type": "backend",
+  "base_url": "http://localhost:3000",
+  "authentication": {
+    "api_key": {
+      "header": "api_key",
+      "value": "special-key"
+    }
+  },
+  "fixtures": {
+    "test_user": {
+      "method": "POST",
+      "path": "/user",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "username": "fixture_test_user",
+        "firstName": "Fixture",
+        "lastName": "User",
+        "email": "fixture.user@test.com",
+        "password": "password123",
+        "phone": "1234567890",
+        "userStatus": 1
+      }
+    },
+    "cleanup": [
+      {
+        "method": "DELETE",
+        "path": "/user/fixture_test_user"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-USER-001",
+      "name": "User Creation (POST /user)",
+      "description": "Test creating new user accounts",
+      "endpoint": "POST /user",
+      "test_cases": [
+        {
+          "id": "TC-USER-001",
+          "name": "Create user with all fields",
+          "description": "Should successfully create user with all profile fields populated",
+          "method": "POST",
+          "path": "/user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "newuser123",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john.doe@example.com",
+            "password": "securePassword123",
+            "phone": "+1-555-0123",
+            "userStatus": 1
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-002",
+          "name": "Create user with minimal fields",
+          "description": "Should successfully create user with only username",
+          "method": "POST",
+          "path": "/user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "minimaluser",
+            "email": "minimal@example.com",
+            "password": "password123"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-003",
+          "name": "Create user with userStatus 0",
+          "description": "Should successfully create inactive user (userStatus = 0)",
+          "method": "POST",
+          "path": "/user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "inactiveuser",
+            "email": "inactive@example.com",
+            "password": "password123",
+            "userStatus": 0
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-004",
+          "name": "Create user with duplicate username",
+          "description": "Should handle creation attempt with duplicate username",
+          "method": "POST",
+          "path": "/user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "fixture_test_user",
+            "email": "duplicate@example.com",
+            "password": "password123"
+          },
+          "expected_status": 200
+        }
+      ]
+    },
+    {
+      "id": "REQ-USER-002",
+      "name": "Get User by Username",
+      "description": "Test retrieving user profile by username",
+      "endpoint": "GET /user/{username}",
+      "test_cases": [
+        {
+          "id": "TC-USER-005",
+          "name": "Get existing user by username",
+          "description": "Should successfully retrieve user profile for existing username",
+          "method": "GET",
+          "path": "/user/fixture_test_user",
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["username", "email"]
+          }
+        },
+        {
+          "id": "TC-USER-006",
+          "name": "Get test user user1",
+          "description": "Should retrieve the default test user (user1 as per PRD)",
+          "method": "GET",
+          "path": "/user/user1",
+          "expected_status": 200,
+          "expected_response": {
+            "contains": ["id", "username"]
+          }
+        },
+        {
+          "id": "TC-USER-007",
+          "name": "Get non-existent user",
+          "description": "Should return 404 when username doesn't exist",
+          "method": "GET",
+          "path": "/user/nonexistentuser99999",
+          "expected_status": 404
+        },
+        {
+          "id": "TC-USER-008",
+          "name": "Get user with special characters in username",
+          "description": "Should handle usernames with special characters",
+          "method": "GET",
+          "path": "/user/user@special#chars",
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-USER-003",
+      "name": "Update User (PUT /user/{username})",
+      "description": "Test updating existing user profiles",
+      "endpoint": "PUT /user/{username}",
+      "test_cases": [
+        {
+          "id": "TC-USER-009",
+          "name": "Update existing user profile",
+          "description": "Should successfully update all fields of existing user",
+          "method": "PUT",
+          "path": "/user/fixture_test_user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "fixture_test_user",
+            "firstName": "Updated",
+            "lastName": "Name",
+            "email": "updated.email@test.com",
+            "password": "newPassword456",
+            "phone": "9876543210",
+            "userStatus": 1
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-010",
+          "name": "Update user email only",
+          "description": "Should successfully update specific fields",
+          "method": "PUT",
+          "path": "/user/fixture_test_user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "fixture_test_user",
+            "email": "newemail@test.com"
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-011",
+          "name": "Update user status from active to inactive",
+          "description": "Should successfully change userStatus",
+          "method": "PUT",
+          "path": "/user/fixture_test_user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "fixture_test_user",
+            "userStatus": 0
+          },
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-012",
+          "name": "Update non-existent user",
+          "description": "Should return 404 when trying to update user that doesn't exist",
+          "method": "PUT",
+          "path": "/user/nonexistentuser99999",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "nonexistentuser99999",
+            "email": "test@test.com"
+          },
+          "expected_status": 404
+        },
+        {
+          "id": "TC-USER-013",
+          "name": "Update user with invalid data",
+          "description": "Should return 400 for invalid user data",
+          "method": "PUT",
+          "path": "/user/fixture_test_user",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "fixture_test_user",
+            "email": "invalid-email-format"
+          },
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-USER-004",
+      "name": "Delete User (DELETE /user/{username})",
+      "description": "Test deleting user accounts",
+      "endpoint": "DELETE /user/{username}",
+      "test_cases": [
+        {
+          "id": "TC-USER-014",
+          "name": "Delete existing user",
+          "description": "Should successfully delete user account",
+          "method": "DELETE",
+          "path": "/user/fixture_test_user",
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-015",
+          "name": "Delete non-existent user",
+          "description": "Should return 404 when trying to delete user that doesn't exist",
+          "method": "DELETE",
+          "path": "/user/nonexistentuser99999",
+          "expected_status": 404
+        },
+        {
+          "id": "TC-USER-016",
+          "name": "Delete user with invalid username",
+          "description": "Should return 400 for invalid username format",
+          "method": "DELETE",
+          "path": "/user/",
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-USER-005",
+      "name": "Bulk User Creation",
+      "description": "Test creating multiple users at once",
+      "endpoint": "POST /user/createWithArray",
+      "test_cases": [
+        {
+          "id": "TC-USER-017",
+          "name": "Create users with array",
+          "description": "Should successfully create multiple users from array",
+          "method": "POST",
+          "path": "/user/createWithArray",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": [
+            {
+              "username": "bulkuser1",
+              "email": "bulk1@example.com",
+              "password": "password123"
+            },
+            {
+              "username": "bulkuser2",
+              "email": "bulk2@example.com",
+              "password": "password123"
+            }
+          ],
+          "expected_status": 200
+        },
+        {
+          "id": "TC-USER-018",
+          "name": "Create users with list",
+          "description": "Should successfully create multiple users using createWithList endpoint",
+          "method": "POST",
+          "path": "/user/createWithList",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": [
+            {
+              "username": "listuser1",
+              "email": "list1@example.com",
+              "password": "password123"
+            },
+            {
+              "username": "listuser2",
+              "email": "list2@example.com",
+              "password": "password123"
+            },
+            {
+              "username": "listuser3",
+              "email": "list3@example.com",
+              "password": "password123"
+            }
+          ],
+          "expected_status": 200
+        }
+      ]
+    }
+  ]
+}

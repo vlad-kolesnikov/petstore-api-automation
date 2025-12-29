@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx:*)",
+      "Bash(node --version:*)",
+      "Bash(cat:*)",
+      "Bash(export TESTSPRITE_API_KEY=sk-user-lpYd14lB2DluFXBTyEsR96Cyo_iGMqERHk5MO4nvtcVPZnJ3ZPQ4qHknz-HzCY978zAXZgA0S7O4108DxB9m2o1039Q1lH0Rg64GYRIgTjGQaETmw193NIfdV6FtDs7tL10)",
+      "Bash(env)",
+      "Bash(curl:*)",
+      "Bash(mkdir:*)",
+      "Bash(test:*)",
+      "Bash(python3:*)",
+      "Bash(tasklist:*)",
+      "Bash(python test_runner.py:*)"
+    ]
+  }
+}

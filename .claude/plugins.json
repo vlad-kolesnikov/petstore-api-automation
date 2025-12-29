@@ -1,0 +1,37 @@
+{
+  "plugins": [
+    {
+      "name": "safety-net",
+      "enabled": true,
+      "path": "~/.claude/plugins/safety-net",
+      "config": {
+        "strict_mode": true,
+        "log_blocked_commands": true,
+        "log_file": ".claude/safety-net.log",
+        "protected_paths": [
+          "~/.ssh/",
+          "~/.aws/",
+          "~/.config/",
+          "/etc/",
+          "/usr/",
+          "/var/"
+        ],
+        "dangerous_patterns": [
+          "rm -rf /",
+          "rm -rf ~",
+          "dd if=",
+          "> /dev/",
+          "mkfs",
+          "format"
+        ],
+        "require_confirmation": [
+          "git push",
+          "git reset --hard",
+          "rm -rf",
+          "DROP DATABASE",
+          "DROP TABLE"
+        ]
+      }
+    }
+  ]
+}

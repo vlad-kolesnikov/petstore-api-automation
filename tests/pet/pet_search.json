@@ -1,0 +1,234 @@
+{
+  "project_name": "Petstore API - Pet Search Operations",
+  "test_type": "backend",
+  "base_url": "http://localhost:3000",
+  "authentication": {
+    "api_key": {
+      "header": "api_key",
+      "value": "special-key"
+    }
+  },
+  "fixtures": {
+    "search_pet_available": {
+      "method": "POST",
+      "path": "/pet",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Search Available Pet",
+        "photoUrls": ["https://example.com/search-available.jpg"],
+        "status": "available",
+        "tags": [
+          {
+            "id": 100,
+            "name": "search-test"
+          },
+          {
+            "id": 101,
+            "name": "available-tag"
+          }
+        ]
+      }
+    },
+    "search_pet_pending": {
+      "method": "POST",
+      "path": "/pet",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Search Pending Pet",
+        "photoUrls": ["https://example.com/search-pending.jpg"],
+        "status": "pending",
+        "tags": [
+          {
+            "id": 102,
+            "name": "search-test"
+          },
+          {
+            "id": 103,
+            "name": "pending-tag"
+          }
+        ]
+      }
+    },
+    "search_pet_sold": {
+      "method": "POST",
+      "path": "/pet",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Search Sold Pet",
+        "photoUrls": ["https://example.com/search-sold.jpg"],
+        "status": "sold",
+        "tags": [
+          {
+            "id": 104,
+            "name": "search-test"
+          },
+          {
+            "id": 105,
+            "name": "sold-tag"
+          }
+        ]
+      }
+    },
+    "cleanup": [
+      {
+        "method": "DELETE",
+        "path": "/pet/{search_pet_available.id}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/pet/{search_pet_pending.id}"
+      },
+      {
+        "method": "DELETE",
+        "path": "/pet/{search_pet_sold.id}"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-PET-SEARCH-001",
+      "name": "Find Pets by Status",
+      "description": "Test finding pets filtered by status",
+      "endpoint": "GET /pet/findByStatus",
+      "test_cases": [
+        {
+          "id": "TC-SEARCH-001",
+          "name": "Find pets with status available",
+          "description": "Should return array of pets with available status",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=available",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-002",
+          "name": "Find pets with status pending",
+          "description": "Should return array of pets with pending status",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=pending",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-003",
+          "name": "Find pets with status sold",
+          "description": "Should return array of pets with sold status",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=sold",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-004",
+          "name": "Find pets with multiple statuses",
+          "description": "Should return array of pets matching any of the provided statuses",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=available&status=pending",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-005",
+          "name": "Find pets with all statuses",
+          "description": "Should return all pets when all status values are provided",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=available&status=pending&status=sold",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-006",
+          "name": "Find pets with invalid status",
+          "description": "Should return 400 bad request for invalid status value",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=invalid_status",
+          "expected_status": 400
+        },
+        {
+          "id": "TC-SEARCH-007",
+          "name": "Find pets without status parameter",
+          "description": "Should use default status (available) when no status parameter provided",
+          "method": "GET",
+          "path": "/pet/findByStatus",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-008",
+          "name": "Find pets with empty status parameter",
+          "description": "Should return 400 for empty status value",
+          "method": "GET",
+          "path": "/pet/findByStatus?status=",
+          "expected_status": 400
+        }
+      ]
+    },
+    {
+      "id": "REQ-PET-SEARCH-002",
+      "name": "Find Pets by Tags (Deprecated)",
+      "description": "Test finding pets by tags - note this endpoint is deprecated",
+      "endpoint": "GET /pet/findByTags",
+      "test_cases": [
+        {
+          "id": "TC-SEARCH-009",
+          "name": "Find pets by single tag",
+          "description": "Should return array of pets matching the tag (deprecated endpoint)",
+          "method": "GET",
+          "path": "/pet/findByTags?tags=search-test",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-010",
+          "name": "Find pets by multiple tags",
+          "description": "Should return pets matching any of the provided tags",
+          "method": "GET",
+          "path": "/pet/findByTags?tags=available-tag&tags=pending-tag",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-011",
+          "name": "Find pets with non-existent tag",
+          "description": "Should return empty array for tag that doesn't exist",
+          "method": "GET",
+          "path": "/pet/findByTags?tags=nonexistent-tag-12345",
+          "expected_status": 200,
+          "expected_response": {
+            "type": "array"
+          }
+        },
+        {
+          "id": "TC-SEARCH-012",
+          "name": "Find pets without tags parameter",
+          "description": "Should return 400 when tags parameter is missing",
+          "method": "GET",
+          "path": "/pet/findByTags",
+          "expected_status": 400
+        }
+      ]
+    }
+  ]
+}

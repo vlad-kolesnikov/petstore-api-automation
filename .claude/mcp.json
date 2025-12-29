@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "testsprite": {
+      "command": "npx",
+      "args": [
+        "@testsprite/testsprite-mcp@latest"
+      ],
+      "env": {
+        "TESTSPRITE_API_KEY": "${TESTSPRITE_API_KEY}"
+      },
+      "description": "TestSprite MCP Server for AI-powered test generation and validation",
+      "autoApprove": [
+        "testsprite_bootstrap",
+        "testsprite_generate_tests",
+        "testsprite_run_tests"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "context7-mcp"
+      ],
+      "description": "Context7 MCP Server for documentation and library context",
+      "autoApprove": [
+        "search_documentation",
+        "get_library_info"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub MCP Server for repository operations",
+      "autoApprove": [
+        "create_issue",
+        "create_pull_request",
+        "search_repositories"
+      ]
+    }
+  }
+}
