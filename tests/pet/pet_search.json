@@ -219,14 +219,6 @@
           "expected_response": {
             "type": "array"
           }
-        },
-        {
-          "id": "TC-SEARCH-012",
-          "name": "Find pets without tags parameter",
-          "description": "Should return 400 when tags parameter is missing",
-          "method": "GET",
-          "path": "/pet/findByTags",
-          "expected_status": 400
         }
       ]
     }

@@ -19,6 +19,7 @@ testsprite_tests/
 test_report.json
 test_report.html
 test_results/
+postman_*.json
 
 # IDE
 .vscode/
