@@ -198,9 +198,12 @@ def main():
     if len(sys.argv) > 2:
         output_path = sys.argv[2]
     else:
-        # Auto-generate output name
+        # Auto-generate output name in postman_collections folder
         input_name = Path(test_plan_path).stem
-        output_path = f"postman_{input_name}.json"
+        output_path = f"postman_collections/postman_{input_name}.json"
+
+        # Create directory if it doesn't exist
+        Path("postman_collections").mkdir(exist_ok=True)
 
     # Convert and save
     converter = PostmanConverter(test_plan_path)
